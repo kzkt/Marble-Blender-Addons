@@ -19,7 +19,6 @@ class MQM_OT_export_armature(bpy.types.Operator, ExportHelper):
     bl_idname = "mqm.export_armature"
     bl_label = "Export for VRChat"
     bl_description = "Export Selected Armature for VRChat"
-    bl_icon = 'EVENT_NDOF_BUTTON_SAVE_V1'
     bl_options = {'REGISTER', 'UNDO'}
     
     filename_ext = ".fbx"
