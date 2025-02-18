@@ -24,6 +24,8 @@ class MQM_OT_export_armature(bpy.types.Operator, ExportHelper):
     
     filename_ext = ".fbx"
 
+    armature: bpy.props.StringProperty() #type: ignore
+
     filter_glob: bpy.props.StringProperty(
         default="*.fbx",
         options={'HIDDEN'},
@@ -46,18 +48,19 @@ class MQM_OT_export_armature(bpy.types.Operator, ExportHelper):
             use_mesh_modifiers=True,
             add_leaf_bones=False
         )
+        return {'FINISHED'}
 
     def _collect_export_objects(self,context):
         export_objects = []
         
-        selected_object = context.selected_objects[0]
+        armature = context.scene.objects.get(self.armature)
 
-        if selected_object.type != 'ARMATURE':
+        if armature.type != 'ARMATURE':
             self.report({'WARNING'}, "Please select an Armature")
             return {'CANCELLED'}
-        export_objects.append(selected_object)
+        export_objects.append(armature)
 
-        export_objects.extend(self._get_all_children(selected_object))
+        export_objects.extend(self._get_all_children(armature))
 
         bpy.ops.object.select_all(action='DESELECT')
         for obj in export_objects:
@@ -79,10 +82,23 @@ class MQM_MT_ExportToVRChat(bpy.types.Menu):
 
     def draw(self, context):
         layout = self.layout
-        layout.label(text="Export to VRChat")
+        layout.label(text="Select an armature to export:",icon='EXPORT')
+        layout.separator()
+        self._get_all_armatures(context,layout)
         
-        
-        
+    def _get_all_armatures(self,context,layout):
+        armatures = [
+            obj for obj in context.scene.objects if obj.type == 'ARMATURE'
+        ]
+        if not armatures:
+            layout.label(text="No armatures found in the scene")
+            return
+
+        for a in armatures:
+            print(a)
+            row = layout.row()
+            row.operator("mqm.export_armature",text=f'{a.name}').armature = a.name
+            
 
 
     
