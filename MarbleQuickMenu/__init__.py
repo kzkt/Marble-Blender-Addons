@@ -17,8 +17,8 @@ StringProperty = bpy.props.StringProperty
 CollectionProperty = bpy.props.CollectionProperty
 
 ## GLOBAL VARS
-_METAINFOS = []
-_SUBMODULES = []
+_METAINFOS : list = []
+_SUBMODULES : list = []
 
 #MISC FUNCTIONS
 
@@ -70,40 +70,27 @@ class MQM_TestButton(Operator):
 #IMPORTED SUBMODULE LIST
 
 ## ListItem
-class ModulesListItem(PropertyGroup):
+class ModulesUIListItem(PropertyGroup):
     name: StringProperty(default="") # type: ignore
     description: StringProperty(default="") # type: ignore
     category: StringProperty(default="") # type: ignore
     version: StringProperty(default="") # type: ignore
-    classes_name: StringProperty(default="") # type: ignore
-    menu_items: StringProperty(default="") # type: ignore
 
-    def set_classes(self,classes_list):
-        return self._list_to_str(classes_list)
-    
-    def get_classes(self):
-        return self._str_to_list(self.classes_name)
-    
-    def set_menu_items(self,menu_items_list):
-        return self._list_to_str(menu_items_list)
+class ModuleMetadata:
+    def __init__(self):
+        self.name = ""
+        self.category = ""
+        self.classes = []
+        self.menu_items = []
 
-    def get_menu_items(self):
-        return self._str_to_list(self.menu_items)
+    def get(self,module):
+        self.name = module.MQM_META.get("name")
+        self.category = module.MQM_META.get("category")
+        self.classes = module.MQM_META.get("classes")
+        self.menu_items = module.MQM_META.get("menu_items")
+        print(f'Metadata of Module {self.name} Initialized.')
+        return self
 
-    def _list_to_str(self,list_):
-        if type(list_) == None:
-            list_ = []
-            print(f'The Class or Menu Item Missed: {self.name}. Nothing will be initialized. Please check the meta info of your submodule.')
-        if not type(list_) == list:
-            list_ = [list_]
-            print(f'The Classes or Menu Items are not a list: {self.name}.__init__ will convert it to a list but it may cause errors. Please check the meta info of your submodule.')
-        return list_
-    
-    def _str_to_list(self,str_):
-        if str_ == "":
-            return []
-        else: 
-            return str_.split(",")
 
 ## Create Module UIList
 class MQM_UL_ModuleList(UIList):
@@ -126,7 +113,7 @@ class MQMPreferences(AddonPreferences):
         update=lambda self, context: self.load_modules(context)
     ) # type: ignore
 
-    submodules_collection: bpy.props.CollectionProperty(type=ModulesListItem) # type: ignore
+    modules_ui_list_collection: bpy.props.CollectionProperty(type=ModulesUIListItem) # type: ignore
 
     submodule_index: bpy.props.IntProperty(
         name = "Index of Submodule",
@@ -138,7 +125,7 @@ class MQMPreferences(AddonPreferences):
     invalid_modules_info: bpy.props.StringProperty(default="") # type: ignore
 
     def load_modules(self,context):
-        self.submodules_collection.clear()
+        self.modules_ui_list_collection.clear()
         self.submodules.clear()
         self.invalid_modules_info = ""
 
@@ -148,17 +135,21 @@ class MQMPreferences(AddonPreferences):
         self.invalid_modules_info = ",".join(invalid_modules)
 
         for m in self.submodules:
-            list_item = self.submodules_collection.add()
+            list_item = self.modules_ui_list_collection.add()
             list_item.name = m.MQM_META.get("name")
             list_item.description = m.MQM_META.get("desc")
             list_item.category = m.MQM_META.get("category")
             list_item.version = m.MQM_META.get("version")
-            list_item.set_classes(m.MQM_META.get("classes"))
-            list_item.set_menu_items(m.MQM_META.get("menu_items"))
+            global _METAINFOS
+            metadata = ModuleMetadata().get(m)
+            _METAINFOS.append(metadata)
 
-        print(f'{self.submodules_collection} Loaded.')
         print(f'Invalid Modules: {self.invalid_modules_info}')
 
+        
+
+        print(f'global _METAINFOS: {_METAINFOS}')
+        print(f'global _SUBMODULES: {_SUBMODULES}')
 
     #Draw UI
     def draw(self, context):
@@ -180,7 +171,7 @@ class MQMPreferences(AddonPreferences):
             "MQM_UL_ModuleList",
             "",
             self,
-            "submodules_collection",
+            "modules_ui_list_collection",
             self,
             "submodule_index",
         )
@@ -205,7 +196,7 @@ class MQM_SubmoduleLoader:
         print(info)
 
         global _SUBMODULES
-        _SUBMODULES = self.submodules.copy()
+        _SUBMODULES = self.submodules
 
         return self.submodules, self.invalid_modules
 
@@ -259,12 +250,8 @@ class MQM_SubmoduleLoader:
             return False
 
 class MQM_SubmoduleMenuItemLoader:
-    global _SUBMODULES,_METAINFOS
-
     def __init__(self):
-        self.meta_infos = _METAINFOS
         self.categories = []
-        self.modules = _SUBMODULES
         self.ops_to_register = []
 
     def GetClasses(self):
@@ -278,17 +265,18 @@ class MQM_SubmoduleMenuItemLoader:
         return categories
 
     def _Class_Checker(self):
+        global _SUBMODULES,_METAINFOS
         classes_to_register = []
         categories = []
-        for module, meta in zip(self.modules, self.meta_infos):
-            for class_str in meta.get_classes():
-                if hasattr(module, class_str):
-                    class_ = getattr(module, class_str)
+        for module, meta in zip(_SUBMODULES, _METAINFOS):
+            for item in meta.classes:
+                if hasattr(module, item):
+                    class_ = getattr(module, item)
                     classes_to_register.append(class_)
                     if meta.category not in categories:
                         categories.append(meta.category)
                 else:
-                    print(f'{class_str} not found in {module.__name__}')
+                    print(f'{item} not found in {module.__name__}')
 
         return classes_to_register, categories
 
@@ -297,9 +285,9 @@ class MQM_MainMenu(Menu):
 
     bl_label = "MQMenu"  # 菜单的显示名称
     bl_idname = "MQM_MT_MainMenu"  # 菜单的唯一ID
-    modules = _SUBMODULES
 
-    categories = MQM_SubmoduleMenuItemLoader().GetCategories()
+    #!!!在这里的语句会在最开始就被执行，应将获取Categories或Classes的语句放在draw函数中!!
+
     def draw(self, context):
         layout = self.layout
         # 添加菜单项
@@ -308,21 +296,24 @@ class MQM_MainMenu(Menu):
         self._draw_operators(layout)
 
     def _draw_categories(self,layout):
-        for c in self.categories:
+        categories = MQM_SubmoduleMenuItemLoader().GetCategories()
+        for c in categories:
             varName = f"_{c}"
             layout.separator()
             setattr(self, varName, layout.column())
             getattr(self, varName).label(text=c)
 
     def _draw_operators(self,layout):
-        for module in self.modules:
+        global _SUBMODULES
+        modules = _SUBMODULES
+        for module in modules:
             menu_to_items = module.MQM_META.get("menu_items")
 
             if not type(menu_to_items) == list: #str to list
                 menu_to_items = [menu_to_items]
 
-            for class_str in menu_to_items:
-                class_ = getattr(module, class_str)
+            for item in menu_to_items:
+                class_ = getattr(module, item)
                 idname = class_.bl_idname
                 target_category = getattr(self, f"_{module.MQM_META.get('category')}")
                 if issubclass(class_, bpy.types.Operator):
@@ -330,7 +321,7 @@ class MQM_MainMenu(Menu):
                 elif issubclass(class_, bpy.types.Menu):
                     target_category.menu(idname)
                 else:
-                    print(f'{class_str} is not an operator or menu')
+                    print(f'{item} is not an operator or menu')
                 print(f'{idname} added to menu')
 
 ## Draw to Main UI
@@ -339,9 +330,9 @@ def draw_menu(self, context):
 
 # ADDON REG/UNREG
 _CORE_CLASSES = [
-    ModulesListItem,
-    MQMPreferences,
+    ModulesUIListItem,
     MQM_UL_ModuleList,
+    MQMPreferences,
     OpenScriptsFolderInExplorer,
     MQM_MainMenu,
     MQM_TestButton
@@ -359,15 +350,10 @@ def register():
     #Get Preferences
     prefs = bpy.context.preferences.addons[__name__].preferences
     prefs.load_modules(bpy.context)
-    global _METAINFOS,_SUBMODULES
-    _METAINFOS = prefs.submodules_collection
     
     _subClasses = MQM_SubmoduleMenuItemLoader().GetClasses()
     for i in _subClasses:
         RegClass(i)
-
-    print(bpy.context.preferences.addons[__name__].preferences)
-
 
     bpy.types.TOPBAR_MT_editor_menus.append(draw_menu)  # 将自定义菜单添加到最上方菜单栏
 

@@ -6,7 +6,10 @@ MQM_META = {
     "category": "Objects",
     "version": "0.0.1",
     "desc": "Backup selected objects",
-    "classes": ["MQM_OT_backup_selected"]
+    "classes": ["MQM_OT_backup_selected"],
+    "menu_items": [
+        "MQM_OT_backup_selected"
+    ]
 }
 
 class MQM_OT_backup_selected(bpy.types.Operator):

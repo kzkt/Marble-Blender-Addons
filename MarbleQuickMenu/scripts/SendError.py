@@ -5,7 +5,10 @@ MQM_META = {
     "category": "Misc",
     "version": "0.0.1",
     "desc": "Report an error",
-    "classes": "SEND_ERROR"
+    "classes": ["SEND_ERROR"],
+    "menu_items": [
+        "SEND_ERROR"
+    ]
 }
 
 class SEND_ERROR(bpy.types.Operator):
