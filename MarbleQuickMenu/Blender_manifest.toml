@@ -1,0 +1,14 @@
+schema_version = '0.0.1'
+
+id = 'marble_quick_menu'
+version = '0.0.1'
+name = 'Marble Quick Menu'
+tagline = 'A Collection of my quick scripts'
+maintainer = 'Marble810 <kzkt@foxmail.com>'
+type = 'add-on'
+
+blender_version_min = "4.2.0"
+
+license = [
+  "SPDX:GPL-3.0-or-later",
+]
