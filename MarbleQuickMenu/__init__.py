@@ -100,7 +100,6 @@ class MQM_UL_ModuleList(UIList):
             layout.label(text=item.description)
             layout.label(text=item.category)
             layout.label(text=item.version)
-            layout.label(text=item.classes_draw_)
 
 #ADDON PREFS
 class MQMPreferences(AddonPreferences):
