@@ -1,9 +1,8 @@
 # Marble Blender Addons
 ---
-Some Addons for Blender to improve the efficiency.
-Coded with DeepSeek-R1 and Codestral.
+Some Blender addons designed based on personal experience to improve workflow efficiency.
 
-Developed in Blender 4.2.3 LTS. No other versions are tested.
+Tested with Blender 4.2.3 LTS.
 
 ## Install Addons
 
