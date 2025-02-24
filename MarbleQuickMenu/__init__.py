@@ -190,9 +190,9 @@ class MQM_SubmoduleLoader:
         self._clear_previous()
         self._load_files()
 
-        info:str = f"Loaded {len(self.submodules)} modules; {len(self.invalid_modules)} is not MQM modules"
-        popup_sender(info)
-        print(info)
+        # info:str = f"Loaded {len(self.submodules)} modules; {len(self.invalid_modules)} is not MQM modules"
+        # popup_sender(info)
+        # print(info)
 
         global _SUBMODULES
         _SUBMODULES = self.submodules
@@ -288,6 +288,8 @@ class MQM_MainMenu(Menu):
     #!!!在这里的语句会在最开始就被执行，应将获取Categories或Classes的语句放在draw函数中!!
 
     def draw(self, context):
+        prefs = bpy.context.preferences.addons[__name__].preferences
+        prefs.load_modules(bpy.context)
         layout = self.layout
         # 添加菜单项
         layout.label(text="Marble Quick Menu",icon='SCRIPT')
