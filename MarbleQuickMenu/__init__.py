@@ -3,6 +3,12 @@ import os
 import importlib
 import ast
 
+bl_info = {
+    "name": "Marble Quick Menu",
+    "blender": (4,2,3),
+    "category": "Object",
+}
+
 #GLOBAL VARS
 
 ## bpy Alias
