@@ -2,7 +2,7 @@ import bpy
 
 MQM_META = {
     "name": __name__,
-    "category": "Misc",
+    "category": "Debug",
     "version": "0.0.1",
     "desc": "Report an error",
     "classes": ["SEND_ERROR"],

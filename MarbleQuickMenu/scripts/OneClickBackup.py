@@ -4,7 +4,7 @@ import datetime
 MQM_META = {
     "name": __name__,
     "category": "Objects",
-    "version": "0.0.1",
+    "version": "1.0",
     "desc": "Backup selected objects",
     "classes": ["MQM_OT_backup_selected"],
     "menu_items": [
