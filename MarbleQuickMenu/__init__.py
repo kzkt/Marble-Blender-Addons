@@ -1,3 +1,4 @@
+#MarbleQuickMenu-Core
 import bpy
 import os
 import importlib
