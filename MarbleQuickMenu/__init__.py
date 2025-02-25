@@ -147,8 +147,8 @@ class MQMPreferences(AddonPreferences):
 
         
 
-        print(f'global _METAINFOS: {_METAINFOS}')
-        print(f'global _SUBMODULES: {_SUBMODULES}')
+        # print(f'global _METAINFOS: {_METAINFOS}')
+        # print(f'global _SUBMODULES: {_SUBMODULES}')
 
     #Draw UI
     def draw(self, context):
@@ -298,6 +298,11 @@ class MQM_MainMenu(Menu):
 
     def _draw_categories(self,layout):
         categories = MQM_SubmoduleMenuItemLoader().GetCategories()
+
+        if "Debug" in categories:
+            categories.remove("Debug")
+            categories.append("Debug")
+
         for c in categories:
             varName = f"_{c}"
             layout.separator()
