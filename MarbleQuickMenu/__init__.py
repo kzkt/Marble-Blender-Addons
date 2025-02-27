@@ -1,10 +1,12 @@
 #MarbleQuickMenu-Core
+
+#Libraries
 import bpy
 import os
 import importlib
 import ast
-
-#GLOBAL VARS
+#Submodules
+from ReportHelper import popup_sender
 
 ## bpy Alias
 ###Types
@@ -21,18 +23,10 @@ CollectionProperty = bpy.props.CollectionProperty
 _METAINFOS : list = []
 _SUBMODULES : list = []
 
-#MISC FUNCTIONS
+#--------------------------------------------------------------------
+# ADDON PREFERENCES OBJECTS
+#--------------------------------------------------------------------
 
-## ReportSender
-def popup_sender(message,type="INFO"):
-    
-    def draw(self,context):
-        self.layout.label(text=message)
-
-    bpy.context.window_manager.popup_menu(draw, title=type, icon='INFO')
-    return
-
-## Open in Explorer
 class OpenScriptsFolderInExplorer(Operator):
     bl_idname = "mqm.open_scripts_folder"
     bl_label = "Open in Explorer"
