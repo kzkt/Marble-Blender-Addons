@@ -2,6 +2,7 @@
 import json
 import os
 import bpy
+import ast
 #Submodules
 from ReportHelper import popup_sender
 
@@ -22,7 +23,20 @@ class submodule_loader:
     def _load_files(self,path):
         if not os.path.exists(path):
             popup_sender(f"Path does not exist: {path}", "ERROR")
-            
+            return
+        for file in os.listdir(path):
+            if file.endswith(".py") and not file.startswith("__init__"):
+                metainfo = self._get_metadata(file)
+
+    def _get_metadata(self,file):
+        tree = ast.parse(file)
+        for node in ast.walk(tree):
+            if isinstance(node, ast.Assign):
+                if len(node.targets) == 1 and isinstance(node.targets[0], ast.Name) and node.targets[0].id == "MQM_META":
+                    if isinstance(node.value, ast.Dict):
+                        keys = [ast.literal_eval(key) for key in node.value.keys]
+                        values = [ast.literal_eval(value) for value in node.value.values]
+                        return dict(zip(keys, values))
 
 class json_library:
     def __init__(self):
