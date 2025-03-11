@@ -2,7 +2,7 @@ import bpy
 from mathutils import Vector #Convert float list to vector
 
 MQM_META = {
-    "name": __name__,
+    "name": "CursorToObjectBaseCenter",
     "category": "Snap",
     "version": "1.0",
     "desc": "Snap selected object to floor",
