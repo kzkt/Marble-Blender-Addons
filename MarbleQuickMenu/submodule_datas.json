@@ -1,0 +1,70 @@
+{
+    "submodules": [
+        {
+            "name": "CursorToObjectBaseCenter",
+            "category": "Snap",
+            "version": "1.0",
+            "desc": "Snap selected object to floor",
+            "classes": [
+                "MQM_OT_CursorToObjectBaseCenter"
+            ],
+            "menu_items": [
+                "MQM_OT_CursorToObjectBaseCenter"
+            ],
+            "enabled": true
+        },
+        {
+            "name": "OneClickBackup",
+            "category": "Objects",
+            "version": "1.0",
+            "desc": "Backup selected objects",
+            "classes": [
+                "MQM_OT_backup_selected"
+            ],
+            "menu_items": [
+                "MQM_OT_backup_selected"
+            ],
+            "enabled": true
+        },
+        {
+            "name": "SelectionToWorldOrigin",
+            "category": "Snap",
+            "version": "1.0",
+            "desc": "Set origin of selected object to the world origin",
+            "classes": [
+                "MQM_OT_SelectionToWorldOrigin"
+            ],
+            "menu_items": [
+                "MQM_OT_SelectionToWorldOrigin"
+            ],
+            "enabled": true
+        },
+        {
+            "name": "SendError",
+            "category": "Debug",
+            "version": "0.0.1",
+            "desc": "Report an error",
+            "classes": [
+                "SEND_ERROR"
+            ],
+            "menu_items": [
+                "SEND_ERROR"
+            ],
+            "enabled": true
+        },
+        {
+            "name": "VRCArmatureExporter",
+            "category": "VRChat",
+            "version": "1.0",
+            "desc": "Export Selected Armature for VRChat",
+            "classes": [
+                "MQM_OT_export_armature",
+                "MQM_MT_ExportToVRChat"
+            ],
+            "menu_items": [
+                "MQM_MT_ExportToVRChat"
+            ],
+            "enabled": true
+        }
+    ]
+}
