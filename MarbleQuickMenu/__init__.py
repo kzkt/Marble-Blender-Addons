@@ -3,10 +3,14 @@
 #Libraries
 import bpy
 import os
+import sys
 import importlib
 import ast
+import json
 #Submodules
-from ReportHelper import popup_sender
+sys.path.append(os.path.dirname(__file__))
+from .ReportHelper import popup_sender
+from .SubmoduleDatabaseCore import submodule_loader,json_library
 
 ## bpy Alias
 ###Types
@@ -18,10 +22,12 @@ Menu = bpy.types.Menu
 ###Props
 StringProperty = bpy.props.StringProperty
 CollectionProperty = bpy.props.CollectionProperty
+BoolProperty = bpy.props.BoolProperty
 
 ## GLOBAL VARS
 _METAINFOS : list = []
 _SUBMODULES : list = []
+_JSONDATA : dict = []
 
 #--------------------------------------------------------------------
 # ADDON PREFERENCES OBJECTS
@@ -50,22 +56,11 @@ class OpenScriptsFolderInExplorer(Operator):
 
         return {'FINISHED'}
 
-## Test Button
-class MQM_TestButton(Operator):
-    bl_idname = "mqm.testbutton"
-    bl_label = "Test Button"
-    bl_description = "Test Button"
-    bl_icon = 'PINNED'
-    bl_options = {'REGISTER'}
-
-    def execute(self,context):
-        popup_sender("Test Button", "INFO")
-        return {'FINISHED'}
-
 #IMPORTED SUBMODULE LIST
 
 ## ListItem
 class ModulesUIListItem(PropertyGroup):
+    enabled: BoolProperty(default=True) # type: ignore
     name: StringProperty(default="") # type: ignore
     description: StringProperty(default="") # type: ignore
     category: StringProperty(default="") # type: ignore
@@ -91,6 +86,7 @@ class ModuleMetadata:
 class MQM_UL_ModuleList(UIList):
     def draw_item(self,context,layout,data,item,icon,active_data,active_propname,index):
         if self.layout_type in {'DEFAULT','COMPACT'}:
+            layout.prop(item,"enabled",text="")
             layout.label(text=item.name)
             layout.label(text=item.description)
             layout.label(text=item.category)
@@ -118,6 +114,8 @@ class MQMPreferences(AddonPreferences):
 
     invalid_modules_info: bpy.props.StringProperty(default="") # type: ignore
 
+    debug_string: StringProperty(name="Debug String",default="") # type: ignore
+
     def load_modules(self,context):
         self.modules_ui_list_collection.clear()
         self.submodules.clear()
@@ -126,24 +124,36 @@ class MQMPreferences(AddonPreferences):
         loader = MQM_SubmoduleLoader(scripts_path=self.scripts_path)
         self.submodules, invalid_modules = loader.load()
 
+        self.pref_json_parser(context)
+
         self.invalid_modules_info = ",".join(invalid_modules)
 
         for m in self.submodules:
-            list_item = self.modules_ui_list_collection.add()
-            list_item.name = m.MQM_META.get("name")
-            list_item.description = m.MQM_META.get("desc")
-            list_item.category = m.MQM_META.get("category")
-            list_item.version = m.MQM_META.get("version")
+            # list_item = self.modules_ui_list_collection.add()
+            # list_item.name = m.MQM_META.get("name")
+            # list_item.description = m.MQM_META.get("desc")
+            # list_item.category = m.MQM_META.get("category")
+            # list_item.version = m.MQM_META.get("version")
             global _METAINFOS
             metadata = ModuleMetadata().get(m)
             _METAINFOS.append(metadata)
 
         print(f'Invalid Modules: {self.invalid_modules_info}')
 
-        
-
         # print(f'global _METAINFOS: {_METAINFOS}')
         # print(f'global _SUBMODULES: {_SUBMODULES}')
+
+    def pref_json_parser(self,context):
+        # self.modules_ui_list_collection.clear()
+        global _JSONDATA
+        for data in _JSONDATA['submodules']:
+            list_item = self.modules_ui_list_collection.add()
+            list_item.enabled = data['enabled']
+            list_item.name = data['name']
+            list_item.description = data['desc']
+            list_item.category = data['category']
+            list_item.version = data['version']
+        
 
     #Draw UI
     def draw(self, context):
@@ -172,6 +182,10 @@ class MQMPreferences(AddonPreferences):
 
         box2 = box.box()
         box2.label(text=f"Invalid Modules: {self.invalid_modules_info}",icon='ERROR')
+
+        column3 = layout.column()
+        column3.label(text="DEBUG",icon="SCRIPT")
+        column3.prop(self,"debug_string")
 
 #LOADING SUBMODULES
 
@@ -335,8 +349,7 @@ _CORE_CLASSES = [
     MQM_UL_ModuleList,
     MQMPreferences,
     OpenScriptsFolderInExplorer,
-    MQM_MainMenu,
-    MQM_TestButton
+    MQM_MainMenu
 ]
 
 _subClasses = []
@@ -350,6 +363,12 @@ def register():
 
     #Get Preferences
     prefs = bpy.context.preferences.addons[__name__].preferences
+
+    #Init All Submodules
+    submodule_loader(prefs.scripts_path).init_submodule()
+    global _JSONDATA
+    _JSONDATA = json_library().read_json()
+
     prefs.load_modules(bpy.context)
     
     _subClasses = MQM_SubmoduleMenuItemLoader().GetClasses()
