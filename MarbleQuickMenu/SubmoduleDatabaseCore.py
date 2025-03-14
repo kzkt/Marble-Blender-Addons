@@ -117,3 +117,7 @@ class json_library:
             default_data = {"submodules": []}
             with open(self.JSON_PATH, 'w') as f:
                 json.dump(default_data, f, indent=4)
+
+# class database_library:
+#     def __init__(self):
+#         self.JSON_PATH = JSON_DB_PATH
