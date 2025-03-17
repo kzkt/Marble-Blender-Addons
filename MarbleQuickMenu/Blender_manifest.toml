@@ -1,9 +1,9 @@
-schema_version = '0.0.1'
+schema_version = '1.0.0'
 
 id = 'marble_quick_menu'
-version = '0.0.1'
+version = '2.0.0'
 name = 'Marble Quick Menu'
-tagline = 'A Collection of my quick scripts'
+tagline = 'A Blender addon that dynamically loads custom sub-scripts, toggles menu options, and includes built-in efficiency tools.'
 maintainer = 'Marble810 <kzkt@foxmail.com>'
 type = 'add-on'
 
