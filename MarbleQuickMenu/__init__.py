@@ -7,6 +7,12 @@ import importlib
 import ast
 import json
 
+bl_info = {
+    "name": "Marble Quick Menu",
+    "blender": (4,2,3),
+    "category": "Tools",
+}
+
 ## bpy Alias
 ###Types
 AddonPreferences = bpy.types.AddonPreferences
