@@ -2,7 +2,7 @@ import bpy
 import datetime
 
 MQM_META = {
-    "name": __name__,
+    "name": "OneClickBackup",
     "category": "Objects",
     "version": "1.0",
     "desc": "Backup selected objects",

@@ -1,7 +1,7 @@
 import bpy
 
 MQM_META = {
-    "name": __name__,
+    "name": "SendError",
     "category": "Debug",
     "version": "0.0.1",
     "desc": "Report an error",

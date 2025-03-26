@@ -1,7 +1,7 @@
 import bpy
 
 MQM_META = {
-    "name": __name__,
+    "name": "SelectionToWorldOrigin",
     "category": "Snap",
     "version": "1.0",
     "desc": "Set origin of selected object to the world origin",

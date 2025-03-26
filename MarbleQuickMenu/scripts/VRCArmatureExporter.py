@@ -2,7 +2,7 @@ import bpy
 from bpy_extras.io_utils import ExportHelper
 
 MQM_META = {
-    "name": __name__,
+    "name": "VRCArmatureExporter",
     "category": "VRChat",
     "version": "1.0",
     "desc": "Export Selected Armature for VRChat",
