@@ -1,0 +1,14 @@
+schema_version = '1.0.0'
+
+id = 'one_click_backup_pro'
+version = '0.0.1'
+name = 'One Click Backup Pro'
+tagline = 'More features than OneClickBackup in MarbleQuickMenu.'
+maintainer = 'Marble810 <kzkt@foxmail.com>'
+type = 'add-on'
+
+blender_version_min = "4.2.0"
+
+license = [
+  "SPDX:GPL-3.0-or-later",
+]
