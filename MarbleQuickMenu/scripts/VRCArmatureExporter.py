@@ -44,7 +44,7 @@ class MQM_OT_export_armature(bpy.types.Operator, ExportHelper):
                 'MESH',
                 'EMPTY'
                 },
-            use_mesh_modifiers=True,
+            use_mesh_modifiers=False,
             add_leaf_bones=False
         )
         return {'FINISHED'}
