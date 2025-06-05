@@ -1,4 +1,5 @@
 import bpy
+from bpy.app.handlers import persistent
 import datetime
 
 bl_info = {
@@ -15,7 +16,7 @@ bl_info = {
 ### BACKUPED OBJECTS LIST
 
 #### DATA STRUCTURE
-class OCBP_UL_Item(bpy.types.PropertyGroup):
+class OCBP_Object_Item(bpy.types.PropertyGroup):
     name:str = "Object"
     backupscount:int = 0
 
@@ -50,12 +51,43 @@ class OCBP_PT_MainPanel(bpy.types.Panel):
         if not ocbp_collection or len(ocbp_collection.children) == 0:
             box_objlist.label(icon="QUESTION",text="No Backuped Objects")
         else:
-            box_objlist.label(text="Hello")
+            box_objlist.template_list(
+                "OCBP_UL_BackupedObjectsList",
+                "",
+                context.scene,
+                "ocbp_backuped_object_list",
+                context.scene,
+                "ocbp_backuped_object_list_index"
+            )
 
-            
+#Detect Scene Update and Update Object List
+previous_scene_object_pointers = {}
+
+@persistent
+def scene_update_handler(scene,depsgraph):
+
+
+def update_object_list(scene=None):
+    """Only Update Object List PropertyGroup in Scene"""
+    if scene is None:
+        scene = bpy.context.scene
+    if scene is None: #Second Check if bpy.context.scene is None
+        return
+    
+    print(f'Current Scene Objects Count: {len(scene.objects)}')
+
+    scene.ocbp_backuped_object_list.clear()
+
+    ocbp_collection = bpy.data.collections.get("OCBP")
+    if not ocbp_collection:
+        return
+    else:
+        for bak_obj in ocbp_collection.children:
+            new_list_obj = scene.ocbp_backuped_object_list.add()
+            new_list_obj.name = bak_obj.name
+            new_list_obj.backupscount = len(bak_obj.children)
 
 #FUNC
-
 class OCBP_OT_OneClickBackup(bpy.types.Operator):
     bl_idname = "ocbp.oneclickbackup"
     bl_label = "One Click Backup (Pro)"
@@ -106,9 +138,8 @@ RegClass = bpy.utils.register_class
 unRegClass = bpy.utils.unregister_class
 
 _REG_LIST = [
-OCBP_UL_Item,
+OCBP_Object_Item,
 OCBP_UL_BackupedObjectsList,
-BackupedObjects,
 OCBP_PT_MainPanel,
 OCBP_OT_OneClickBackup
 ]
@@ -117,7 +148,36 @@ def register():
     for i in _REG_LIST:
         RegClass(i)
 
+    # REGISTER SCENE PROPERTIES
+    bpy.types.Scene.ocbp_backuped_object_list = bpy.props.CollectionProperty(type=OCBP_Object_Item)
+    bpy.types.Scene.ocbp_backuped_object_list_index = bpy.props.IntProperty(default=0)
+
+    # bpy.app.handlers.load_post.append(load_handler)
+    # bpy.app.timers.register(initialize_addon, first_interval=0.1)
+
+
+
 def unregister():
+    global initialization_done, msgbus_owner
+    initialization_done = False
+    
+    #CLEAR MSGBUS SUBS
+    # bpy.msgbus.clear_by_owner(msgbus_owner)
+
+    # # Remove handlers
+    # if load_handler in bpy.app.handlers.load_post:
+    #     bpy.app.handlers.load_post.remove(load_handler)
+    
+    # if bpy.app.timers.is_registered(initialize_addon):
+    #     bpy.app.timers.unregister(initialize_addon)
+
+    # if bpy.app.timers.is_registered(delayed_update_once):
+    #     bpy.app.timers.unregister(delayed_update_once)
+    
+    # Unregister properties
+    del bpy.types.Scene.ocbp_backuped_object_list_index
+    del bpy.types.Scene.ocbp_backuped_object_list
+
     for i in _REG_LIST:
         unRegClass(i)
 
